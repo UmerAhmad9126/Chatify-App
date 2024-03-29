@@ -1,4 +1,4 @@
-import { View, StatusBar } from 'react-native'
+import { StatusBar } from 'react-native'
 import React from 'react'
 import HomeScreen from './src/screen/HomeScreen'
 import { Colors } from './src/theme/Colors'
