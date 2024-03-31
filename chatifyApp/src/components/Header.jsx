@@ -4,7 +4,7 @@ import chatifyLogo from "../assets/WhatsApp_logo.png"
 import { Colors } from '../theme/Colors'
 import VectorIcon from '../utils/VectorIcons'
 
-export default function Header() {
+const Header = () => {
     return (
         <View style={styles.container}>
             <Image source={chatifyLogo} style={styles.chatifyLogo} />
@@ -17,6 +17,8 @@ export default function Header() {
         </View>
     )
 }
+
+export default Header
 
 
 

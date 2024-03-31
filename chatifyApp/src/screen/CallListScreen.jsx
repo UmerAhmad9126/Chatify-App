@@ -4,7 +4,7 @@ import React from 'react'
 const CallListScreen = () => {
     return (
         <View>
-            <Text></Text>
+            <Text>hyy</Text>
         </View>
     )
 }

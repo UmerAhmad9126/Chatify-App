@@ -1,4 +1,3 @@
-import { View, Text } from 'react-native'
 import React from 'react'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import CommunityScreen from '../screen/CommunityScreen';
@@ -11,6 +10,7 @@ const Tab = createMaterialTopTabNavigator();
 const TopTabBar = () => {
     return (
         <Tab.Navigator
+            initialRouteName='chats'
             screenOptions={() => ({
                 tabBarStyle: {
                     backgroundColor: Colors.primaryColor

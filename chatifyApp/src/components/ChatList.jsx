@@ -3,14 +3,21 @@ import React from 'react'
 import { Colors } from '../theme/Colors'
 import VectorIcon from '../utils/VectorIcons'
 import { ChatListData } from '../data/ChatListData'
+import { useNavigation } from '@react-navigation/native'
 
 
 const ChatList = () => {
+    const navigation = useNavigation();
+
+    const onNavigate = () => {
+        navigation.navigate("ChatScreen")
+    }
+
     return (
         <>
             {ChatListData.map((item) => (
                 <View key={item.id}>
-                    <TouchableOpacity style={styles.container}>
+                    <TouchableOpacity onPress={onNavigate} style={styles.container}>
 
                         <View style={styles.leftContainer}>
                             <Image source={item.profile} style={styles.profileImg} />

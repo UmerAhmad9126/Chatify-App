@@ -19,6 +19,14 @@ const CommunityScreen = () => {
     );
 };
 
+
+
+export default CommunityScreen;
+
+
+
+
+
 const styles = StyleSheet.create({
     container: {
         backgroundColor: Colors.background,
@@ -58,5 +66,3 @@ const styles = StyleSheet.create({
         color: Colors.background,
     },
 });
-
-export default CommunityScreen;
