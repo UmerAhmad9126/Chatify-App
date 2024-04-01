@@ -5,6 +5,7 @@ import { Colors } from './src/theme/Colors'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack';
 import ChatScreen from './src/screen/ChatScreen'
+import ContactScreen from './src/screen/ContactScreen'
 
 const Stack = createStackNavigator();
 
@@ -21,6 +22,7 @@ const App = () => {
       >
         <Stack.Screen name='HomeScreen' component={HomeScreen} />
         <Stack.Screen name='ChatScreen' component={ChatScreen} />
+        <Stack.Screen name='ContactScreen' component={ContactScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )
