@@ -1,14 +1,23 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { ScrollView, StyleSheet } from 'react-native';
+import React from 'react';
+import ContactHeader from '../components/ContactHeader';
+import { Colors } from '../theme/Colors';
+import ContactList from '../components/ContactLists';
 
-const ContactScreen = () => {
+const ContactScreen = props => {
+
     return (
-        <View>
-            <Text>ContactScreen</Text>
-        </View>
-    )
-}
+        <ScrollView style={styles.scrollViewStyle}>
+            <ContactHeader />
+            <ContactList />
+        </ScrollView>
+    );
+};
 
-export default ContactScreen
+const styles = StyleSheet.create({
+    scrollViewStyle: {
+        backgroundColor: Colors.background,
+    },
+});
 
-const styles = StyleSheet.create({})
+export default ContactScreen;
