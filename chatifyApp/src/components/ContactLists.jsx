@@ -5,8 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { ContactListData } from '../data/ContactListData';
 
 const ContactList = () => {
-    const navigation = useNavigation();
 
+    const navigation = useNavigation();
 
     return (
         <View style={styles.container}>
