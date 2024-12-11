@@ -1,65 +1,131 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { Colors } from '../theme/Colors'
-import VectorIcon from '../utils/VectorIcons'
-import { ChatListData } from '../data/ChatListData'
-import { useNavigation } from '@react-navigation/native'
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Colors } from '../theme/Colors';
+import VectorIcon from '../utils/VectorIcons';
+import { useNavigation } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
+import User1 from '../assets/user1.jpeg';
 
 
-const ChatList = () => {
+const ChatList = ({ userId }) => {
     const navigation = useNavigation();
+    const [chatList, setChatList] = useState([]);
 
-    const onNavigate = () => {
-        navigation.navigate("ChatScreen")
-    }
+    useEffect(() => {
+        getChatList()
+            .then(chatData => {
+                setChatList(chatData);
+            })
+            .catch(error => {
+                console.log('error :', error);
+            });
+    }, [userId]);
+
+    const getChatList = async () => {
+        const userRef = firestore().collection('users').doc(userId);
+
+        const allChatDoc = await firestore()
+            .collection('chats')
+            .where('participants', 'array-contains', userRef)
+            .get();
+
+        const chatData = await Promise.all(
+            allChatDoc.docs.map(async chatDoc => {
+                const data = chatDoc.data();
+                const participants = await Promise.all(
+                    data.participants
+                        .filter(item => {
+                            return item.id != userId;
+                        })
+                        .map(async user => {
+                            const userDoc = await user.get();
+                            const userData = await userDoc.data();
+                            const id = user?.id;
+                            const name = userData?.name;
+                            return { id, name };
+                        }),
+                );
+
+                const chatDocRef = chatDoc.ref;
+                const lastMessageDoc = await chatDocRef
+                    .collection('messages')
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .get();
+
+                const lastMessage = lastMessageDoc?.docs?.length
+                    ? lastMessageDoc.docs[0].data()
+                    : {};
+
+                return {
+                    lastMessage,
+                    otherUser: participants[0],
+                };
+            }),
+        );
+        return chatData;
+    };
+
+    const onNavigate = contactId => {
+        navigation.navigate('ChatScreen', {
+            contactId: contactId,
+            userId: userId,
+        });
+    };
 
     return (
         <>
-            {ChatListData.map((item) => (
-                <View key={item.id}>
-                    <TouchableOpacity onPress={onNavigate} style={styles.container}>
-
+            {chatList.map(item => (
+                <View key={item.otherUser?.id}>
+                    <TouchableOpacity
+                        onPress={() => onNavigate(item.otherUser?.id)}
+                        style={styles.container}>
                         <View style={styles.leftContainer}>
-                            <Image source={item.profile} style={styles.profileImg} />
+                            <Image
+                                source={User1}
+                                style={styles.profileImg}
+                            />
                             <View>
-                                <Text style={styles.userName}>{item.name}</Text>
-                                <Text style={styles.message}>{item.message}</Text>
+                                <Text style={styles.username}>{item.otherUser?.name}</Text>
+                                <Text style={styles.message}>{item.lastMessage.body}</Text>
                             </View>
                         </View>
 
                         <View style={styles.rightContainer}>
-                            <Text style={styles.timeStamp}>{item.time}</Text>
+                            <Text style={styles.timeStamp}>
+                                {item.lastMessage.timestamp?.toDate().toDateString()}
+                            </Text>
                             {item.mute && (
-                                <VectorIcon type="MaterialCommunityIcons" name="volume-variant-off" size={22} color={Colors.textGrey} style={styles.muteIcon} />
+                                <VectorIcon
+                                    type="MaterialCommunityIcons"
+                                    name="volume-variant-off"
+                                    size={22}
+                                    color={Colors.textGrey}
+                                    style={styles.muteIcon}
+                                />
                             )}
                         </View>
-
                     </TouchableOpacity>
                 </View>
             ))}
         </>
-    )
-}
-
-export default ChatList
-
+    );
+};
 
 const styles = StyleSheet.create({
     profileImg: {
         borderRadius: 50,
-        height: 50,
-        width: 50,
-        marginRight: 15
+        height: 40,
+        width: 40,
+        marginRight: 15,
     },
     container: {
         backgroundColor: Colors.background,
-        padding: 12,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center"
-
+        padding: 16,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
-    userName: {
+    username: {
         color: Colors.textColor,
         fontSize: 16,
     },
@@ -69,7 +135,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     leftContainer: {
-        flexDirection: "row",
+        flexDirection: 'row',
     },
     timeStamp: {
         color: Colors.textGrey,
@@ -77,7 +143,8 @@ const styles = StyleSheet.create({
     },
     muteIcon: {
         marginTop: 5,
-        marginLeft: 20
+        marginLeft: 20,
+    },
+});
 
-    }
-})
+export default ChatList;

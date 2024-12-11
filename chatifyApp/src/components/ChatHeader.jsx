@@ -1,23 +1,39 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import Profile from "../assets/user1.jpeg"
-import VectorIcon from '../utils/VectorIcons'
-import { Colors } from '../theme/Colors'
-import { useNavigation } from '@react-navigation/native'
+import { View, Text, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import Profile from '../assets/user1.jpeg';
+import VectorIcon from '../utils/VectorIcons';
+import { Colors } from '../theme/Colors';
+import { useNavigation } from '@react-navigation/native';
 
-const ChatHeader = () => {
-
+const ChatHeader = ({ contactUserRef }) => {
     const navigation = useNavigation();
+
+    const [user, setUser] = useState({});
+
+    useEffect(() => {
+        getContactData();
+    }, [contactUserRef]);
+
+    const getContactData = async () => {
+        const contactSnapshot = await contactUserRef.get();
+        const data = contactSnapshot.data();
+        const name = data.name;
+        setUser({ name });
+    };
 
     return (
         <View style={styles.container}>
             <View style={styles.innerContainer}>
-                <VectorIcon type="Ionicons" name="arrow-back" size={24} color={Colors.white} onPress={() => navigation.goBack()} />
+                <VectorIcon
+                    name="arrow-back"
+                    type="Ionicons"
+                    size={24}
+                    color={Colors.white}
+                    onPress={() => navigation.goBack()}
+                />
                 <Image source={Profile} style={styles.profilePhoto} />
-                <Text style={styles.userName}>Kaju</Text>
+                {user.name && <Text style={styles.username}>{user.name}</Text>}
             </View>
-
-
             <View style={styles.innerContainer}>
                 <VectorIcon
                     name="videocam"
@@ -40,10 +56,8 @@ const ChatHeader = () => {
                 />
             </View>
         </View>
-    )
-}
-
-export default ChatHeader
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -71,3 +85,5 @@ const styles = StyleSheet.create({
         marginHorizontal: 25,
     },
 });
+
+export default ChatHeader;

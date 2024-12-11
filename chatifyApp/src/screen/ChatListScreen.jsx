@@ -1,31 +1,42 @@
-import { View, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
-import React from 'react'
-import ChatList from '../components/ChatList'
-import VectorIcon from '../utils/VectorIcons'
-import { Colors } from '../theme/Colors'
-import { useNavigation } from '@react-navigation/native'
-
+import { View, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import ChatList from '../components/ChatList';
+import VectorIcon from '../utils/VectorIcons';
+import { Colors } from '../theme/Colors';
+import { useNavigation } from '@react-navigation/native';
+import { getDeviceId } from '../utils/helper';
 
 const ChatListScreen = () => {
     const navigation = useNavigation();
 
+    const [userId, setUserId] = useState();
+
+    useEffect(() => {
+        getDeviceId().then(id => setUserId(id));
+    }, []);
+
     const onNavigate = () => {
-        navigation.navigate("ContactScreen")
-    }
+        navigation.navigate('ContactScreen', {
+            userId: userId,
+        });
+    };
+
     return (
         <View style={styles.container}>
             <ScrollView>
-                <ChatList />
+                <ChatList userId={userId} />
             </ScrollView>
             <TouchableOpacity style={styles.contactIcon} onPress={onNavigate}>
-                <VectorIcon type="MaterialCommunityIcons" name="message-reply-text" size={22} color={Colors.white} />
+                <VectorIcon
+                    name="message-reply-text"
+                    type="MaterialCommunityIcons"
+                    size={22}
+                    color={Colors.white}
+                />
             </TouchableOpacity>
         </View>
-    )
-}
-
-export default ChatListScreen
-
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -38,10 +49,12 @@ const styles = StyleSheet.create({
         height: 50,
         width: 50,
         borderRadius: 50,
+        alignItems: 'center',
         justifyContent: 'center',
-        alignItems: "center",
         position: 'absolute',
-        bottom: 30,
+        bottom: 20,
         right: 20,
-    }
-})
+    },
+});
+
+export default ChatListScreen;

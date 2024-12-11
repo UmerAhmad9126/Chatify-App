@@ -1,27 +1,53 @@
-import { ImageBackground, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import ChatHeader from '../components/ChatHeader'
-import ChatBody from '../components/ChatBody'
-import ChatFooter from '../components/ChatFooter'
-import Wallpaper from "../assets/wallpaper.jpeg"
+import { View, StyleSheet, ImageBackground } from 'react-native';
+import React from 'react';
+import ChatHeader from '../components/ChatHeader';
+import ChatBody from '../components/ChatBody';
+import ChatFooter from '../components/ChatFooter';
+import Wallpaper from '../assets/wallpaper.jpeg';
+import firestore from '@react-native-firebase/firestore';
 
-const ChatScreen = () => {
+const ChatScreen = props => {
+    const { contactId, userId } = props.route.params;
+    console.log('contactId:', contactId);
+    console.log('userId:', userId);
+    const generateChatId = () => {
+        const sortedUserIds = [userId, contactId].sort();
+        const chatId = sortedUserIds.join('_');
+        return chatId;
+    };
+
+    const chatId = generateChatId();
+    const chatRef = firestore().collection('chats').doc(chatId);
+    const useRef = firestore().collection('users').doc(userId);
+    const contactUserRef = firestore().collection('users').doc(contactId);
+
+    const createChatRoom = async () => {
+        const chatSnapShot = await chatRef.get();
+        if (!chatSnapShot.exists) {
+            const participants = [useRef, contactUserRef];
+            await chatRef.set({ participants });
+        }
+    };
+
+    createChatRoom();
+
     return (
         <>
-            <ChatHeader />
+            <ChatHeader contactUserRef={contactUserRef} />
             <ImageBackground source={Wallpaper} style={styles.wallpaper}>
-                <ChatBody />
+                <ChatBody chatId={chatId} userId={userId} />
             </ImageBackground>
-            <ChatFooter />
+            <ChatFooter chatRef={chatRef} userId={userId} />
         </>
-    )
-}
-
-export default ChatScreen
+    );
+};
 
 const styles = StyleSheet.create({
     wallpaper: {
         flex: 1,
-        padding:12
-    }
-})
+        paddingHorizontal: 12,
+        paddingBottom: 5,
+    },
+});
+
+export default ChatScreen;

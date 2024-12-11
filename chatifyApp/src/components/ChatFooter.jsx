@@ -1,12 +1,10 @@
-import { View, TextInput, StyleSheet, } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
 import React, { useState } from 'react';
-import { Colors } from '../theme/Colors';
 import VectorIcon from '../utils/VectorIcons';
-
-
+import { Colors } from '../theme/Colors';
+import firestore from '@react-native-firebase/firestore';
 
 const ChatFooter = ({ userId, chatRef }) => {
-
     const [message, setMessage] = useState('');
     const [sendEnable, setSendEnable] = useState(false);
 
@@ -16,16 +14,17 @@ const ChatFooter = ({ userId, chatRef }) => {
     };
 
     const onSend = () => {
-
-
-
+        chatRef.collection('messages').add({
+            body: message,
+            sender: userId,
+            timestamp: firestore.FieldValue.serverTimestamp(),
+        });
         setMessage('');
         setSendEnable(false);
     };
 
     return (
         <View style={styles.container}>
-
             <View style={styles.leftContainer}>
                 <View style={styles.row}>
                     <VectorIcon
@@ -68,7 +67,6 @@ const ChatFooter = ({ userId, chatRef }) => {
                     )}
                 </View>
             </View>
-
             <View style={styles.rightContainer}>
                 {sendEnable ? (
                     <VectorIcon
@@ -125,7 +123,6 @@ const styles = StyleSheet.create({
         fontSize: 17,
         color: Colors.white,
         marginLeft: 5,
-        width: 170
     },
 });
 

@@ -1,22 +1,58 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Colors } from '../theme/Colors';
+import firestore from '@react-native-firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
-import { ContactListData } from '../data/ContactListData';
+import User1 from '../assets/user1.jpeg';
 
-const ContactList = () => {
 
+
+const ContactList = ({ userId }) => {
     const navigation = useNavigation();
+
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        getUserData()
+            .then(res => setUsers(res))
+            .catch(error => console.log('error :', error));
+    }, []);
+
+    const getUserData = async () => {
+        const userRef = await firestore().collection('users').get();
+        const userData = Promise.all(
+            userRef.docs
+                .filter(item => {
+                    return item.id != userId;
+                })
+                .map(async item => {
+                    const id = item.id;
+                    const name = item.data().name;
+                    return {
+                        id,
+                        name,
+                    };
+                }),
+        );
+        return userData;
+    };
+
+    const onNavigate = contactId => {
+        navigation.navigate('ChatScreen', {
+            userId: userId,
+            contactId: contactId,
+        });
+    };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Contacts on Whatsapp</Text>
-            {ContactListData.map(item => (
+            {users.map(item => (
                 <View key={item.id}>
                     <TouchableOpacity
                         onPress={() => onNavigate(item.id)}
                         style={styles.contactContainer}>
-                        <Image source={item.userImg} style={styles.imgStyle} />
+                        <Image source={User1} style={styles.imgStyle} />
                         <Text style={styles.username}>{item.name}</Text>
                     </TouchableOpacity>
                 </View>

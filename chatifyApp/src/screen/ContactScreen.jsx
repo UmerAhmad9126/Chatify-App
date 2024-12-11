@@ -1,15 +1,16 @@
 import { ScrollView, StyleSheet } from 'react-native';
 import React from 'react';
 import ContactHeader from '../components/ContactHeader';
-import { Colors } from '../theme/Colors';
 import ContactList from '../components/ContactLists';
+import { Colors } from '../theme/Colors';
 
 const ContactScreen = props => {
+    const { userId } = props.route.params;
 
     return (
         <ScrollView style={styles.scrollViewStyle}>
             <ContactHeader />
-            <ContactList />
+            <ContactList userId={userId} />
         </ScrollView>
     );
 };

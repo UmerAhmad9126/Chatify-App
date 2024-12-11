@@ -1,14 +1,28 @@
-import { StyleSheet, View, Text } from 'react-native'
-import React, { useRef } from 'react'
-import { Colors } from '../theme/Colors'
-import VectorIcon from '../utils/VectorIcons'
-import { MessagesData } from '../data/MessagesData'
-import { ScrollView } from 'react-native-gesture-handler'
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { Colors } from '../theme/Colors';
+import VectorIcon from '../utils/VectorIcons';
+import firestore from '@react-native-firebase/firestore';
 
-const ChatBody = () => {
+const ChatBody = ({ chatId, userId }) => {
+  const scrollViewRef = useRef();
 
-  const userID = "1jdfnvchjkd";
-  const scrollviewRef = useRef();
+  const [messages, setMessages] = useState([]);
+  console.log('messages:', messages)
+
+  useEffect(() => {
+    firestore()
+      .collection('chats')
+      .doc(chatId)
+      .collection('messages')
+      .orderBy('timestamp')
+      .onSnapshot(snapShot => {
+        const allMessages = snapShot.docs.map(snap => {
+          return snap.data();
+        });
+        setMessages(allMessages);
+      });
+  }, []);
 
   const UserMessageView = ({ message, time }) => {
     return (
@@ -25,8 +39,8 @@ const ChatBody = () => {
           />
         </View>
       </View>
-    )
-  }
+    );
+  };
 
   const OtherUserMessageView = ({ message, time }) => {
     return (
@@ -36,30 +50,33 @@ const ChatBody = () => {
           <Text style={styles.time}>{time}</Text>
         </View>
       </View>
-    )
-  }
+    );
+  };
 
-  const scrollToBotom = () => {
-    scrollviewRef.current.scrollToEnd({ animated: true });
-  }
+  const scrollToBottom = () => {
+    scrollViewRef.current.scrollToEnd({ animated: true });
+  };
 
   return (
     <>
       <ScrollView
-        ref={scrollviewRef}
-        showsVerticalScrollIndicator={false}
-        onContentSizeChange={scrollToBotom}
-      >
-        {MessagesData.map((el) => (
-          <>
-            {el.id === userID ? (
-
-              <UserMessageView key={el.id} message={el.message} time={el.time} />
+        ref={scrollViewRef}
+        onContentSizeChange={scrollToBottom}
+        showsVerticalScrollIndicator={false}>
+        {messages.map(item => (
+          <View key={item.timestamp}>
+            {item.sender === userId ? (
+              <UserMessageView
+                message={item.body}
+                time={item.timestamp?.toDate().toDateString()}
+              />
             ) : (
-
-              <OtherUserMessageView key={el.id} message={el.message} time={el.time} />
+              <OtherUserMessageView
+                message={item.body}
+                time={item.timestamp?.toDate().toDateString()}
+              />
             )}
-          </>
+          </View>
         ))}
       </ScrollView>
       <View style={styles.scrollIcon}>
@@ -69,15 +86,13 @@ const ChatBody = () => {
             type="Fontisto"
             size={12}
             color={Colors.white}
-            onPress={scrollToBotom}
+            onPress={scrollToBottom}
           />
         </View>
       </View>
     </>
-  )
-}
-
-export default ChatBody
+  );
+};
 
 const styles = StyleSheet.create({
   userContainer: {
@@ -135,3 +150,5 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
 });
+
+export default ChatBody;
