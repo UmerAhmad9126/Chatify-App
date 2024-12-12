@@ -11,6 +11,8 @@ const ChatListScreen = () => {
 
     const [userId, setUserId] = useState();
 
+    console.log('userId:', userId);
+
     useEffect(() => {
         getDeviceId().then(id => setUserId(id));
     }, []);
